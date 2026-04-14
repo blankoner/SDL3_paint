@@ -1,5 +1,4 @@
 #include "include/program.h"
-#include "include/interface.h"
 #include <stdexcept>
 
 Program::Program(int width, int height)
@@ -14,7 +13,8 @@ Program::Program(int width, int height)
 	
 	window = SDL_CreateWindow("paint", width, height, 0);
 	renderer = SDL_CreateRenderer(window, nullptr);
-	brushSize = 20;
+	
+	setDefaultBrush();
 	quit = false;
 }
 
@@ -28,9 +28,18 @@ Program::~Program()
 	SDL_Quit();
 }
 
+void Program::setDefaultBrush()
+{
+	brush.size = 20;
+	brush.color.r = 0;
+	brush.color.g = 0;
+	brush.color.b = 0;
+	brush.color.a = 255;
+}
+
 bool Program::mouseInsideWindow(const float& x, const float& y)
 {
-	if(x >= 0 && x <= (width - brushSize) && y >= 0 && y <= (height - brushSize))
+	if(x >= 0 && x <= (width - brush.size) && y >= 0 && y <= (height - brush.size))
 		return true;
 
 	return false;
@@ -61,9 +70,10 @@ void Program::handleEvents()
 					}
 					break;
 				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-					coords.x = e.button.x;
-					coords.y = e.button.y;
-					trace.push_back(std::make_pair(coords, brushSize));
+					mouseButtonHold = true;
+					break;
+				case SDL_EVENT_MOUSE_BUTTON_UP:
+					mouseButtonHold = false;
 					break;
 			}
 		}
@@ -73,9 +83,9 @@ void Program::renderTrace()
 {
 	if(!trace.empty())
 	{
-		for(auto step : trace)
+		for(const auto &step : trace)
 		{
-			Interface::drawSquare(renderer, step.first.x, step.first.y, step.second);
+			Interface::drawSquare(renderer, step.x, step.y, step.size);
 		}
 	}
 }
@@ -90,21 +100,21 @@ void Program::clearTrace()
 
 void Program::handleScancodes()
 {
-	const int brushStep = 1;
+	const int brushScaler = 1;
 	const int maxBrushSize = 50;
 	const int minBrushSize = 1;
 	const bool* keyStates = SDL_GetKeyboardState(nullptr);
 
 	if(keyStates[SDL_SCANCODE_UP])
 	{
-		if(brushSize < maxBrushSize)
-			brushSize += brushStep;
+		if(brush.size < maxBrushSize)
+			brush.size += brushScaler;
 	}
 
 	if(keyStates[SDL_SCANCODE_DOWN])
 	{
-		if(brushSize > minBrushSize)
-			brushSize -= brushStep;
+		if(brush.size > minBrushSize)
+			brush.size -= brushScaler;
 	}
 }
 
@@ -117,7 +127,13 @@ void Program::handleMouse()
 
 	if(mouseInsideWindow(x, y))
 	{
-		Interface::drawSquare(renderer, x, y, brushSize);
+		Interface::drawSquare(renderer, x, y, brush.size);
+	}
+	if(mouseInsideWindow(x, y) && mouseButtonHold)
+	{
+		brush.x = x;
+		brush.y = y;
+		trace.push_back(brush);
 	}
 }
 

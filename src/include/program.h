@@ -1,7 +1,7 @@
 #pragma once
 
 #include "interface.h"
-#include "coordinates.h"
+#include "brush.h"
 
 #include <vector>
 
@@ -15,19 +15,21 @@ public:
 private:
 	int width;
 	int height;
-	int brushSize;
+	Brush brush;
 	bool quit;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	Coordinates coords;
-	// coords, size of brush in that moment
-	std::vector<std::pair<Coordinates, int>> trace;
-
+	// Brush parameters at particular moment
+	std::vector<Brush> trace;
+	
+	// Brush
 	void renderTrace();
 	void clearTrace();
+	void setDefaultBrush();
 
 	// Conditions
 	bool mouseInsideWindow(const float& x, const float& y);	
+	bool mouseButtonHold;
 
 	// Inputs
 	void handleScancodes();
