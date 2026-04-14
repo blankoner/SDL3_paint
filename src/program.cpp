@@ -1,4 +1,5 @@
 #include "include/program.h"
+#include "include/colorPalette.h"
 #include <stdexcept>
 
 Program::Program(int width, int height)
@@ -37,46 +38,34 @@ void Program::setDefaultBrush()
 	brush.color.a = 255;
 }
 
-bool Program::mouseInsideWindow(const float& x, const float& y)
+void Program::setBrushColor(colorPalette color)
 {
-	if(x >= 0 && x <= (width - brush.size) && y >= 0 && y <= (height - brush.size))
-		return true;
-
-	return false;
-}
-
-void Program::handleEvents()
-{
-	SDL_Event e;
-
-	while(SDL_PollEvent(&e))
-		{
-			switch(e.type)
-			{
-				case SDL_EVENT_KEY_DOWN:
-					switch(e.key.key)
-					{
-						case SDLK_Q:
-							quit = true;
-							break;
-					}
-					break;
-				case SDL_EVENT_KEY_UP:
-					switch(e.key.key)
-					{
-						case SDLK_SPACE:
-							clearTrace();
-							break;
-					}
-					break;
-				case SDL_EVENT_MOUSE_BUTTON_DOWN:
-					mouseButtonHold = true;
-					break;
-				case SDL_EVENT_MOUSE_BUTTON_UP:
-					mouseButtonHold = false;
-					break;
-			}
-		}
+	switch(color)
+	{
+		case colorPalette::Red:
+			brush.color.r = 255;
+			brush.color.g = 0;
+			brush.color.b = 0;
+			break;
+		case colorPalette::Green:
+			brush.color.r = 0;
+			brush.color.g = 255;
+			brush.color.b = 0;
+			break;
+		case colorPalette::Blue:
+			brush.color.r = 0;
+			brush.color.g = 0;
+			brush.color.b = 255;
+			break;
+		case colorPalette::White:
+			brush.color.r = 255;
+			brush.color.g = 255;
+			brush.color.b = 255;
+			break;
+		case colorPalette::Black:
+			setDefaultBrush();
+			break;
+	}
 }
 
 void Program::renderTrace()
@@ -85,7 +74,7 @@ void Program::renderTrace()
 	{
 		for(const auto &step : trace)
 		{
-			Interface::drawSquare(renderer, step.x, step.y, step.size);
+			Interface::drawSquare(renderer, step.x, step.y, step.size, step.color);
 		}
 	}
 }
@@ -97,6 +86,62 @@ void Program::clearTrace()
 		trace.clear();
 	}
 }
+
+void Program::handleEvents()
+{
+	SDL_Event e;
+
+	while(SDL_PollEvent(&e))
+	{
+		switch(e.type)
+		{
+			case SDL_EVENT_KEY_DOWN:
+				switch(e.key.key)
+				{
+					case SDLK_Q:
+						quit = true;
+						break;
+					case SDLK_R:
+						setBrushColor(colorPalette::Red);
+						break;
+					case SDLK_G:
+						setBrushColor(colorPalette::Green);
+						break;
+					case SDLK_B:
+						setBrushColor(colorPalette::Blue);
+						break;
+					case SDLK_W:
+						setBrushColor(colorPalette::White);
+						break;
+					case SDLK_K:
+						setBrushColor(colorPalette::Black);
+						break;
+				}
+				break;
+			case SDL_EVENT_KEY_UP:
+				switch(e.key.key)
+				{
+					case SDLK_SPACE:
+						clearTrace();
+						break;
+				}
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_DOWN:
+				mouseButtonHold = true;
+				break;
+			case SDL_EVENT_MOUSE_BUTTON_UP:
+				mouseButtonHold = false;
+				break;
+			case SDL_EVENT_WINDOW_MOUSE_ENTER:
+				mouseInsideWindow = true;
+				break;
+			case SDL_EVENT_WINDOW_MOUSE_LEAVE:
+				mouseInsideWindow = false;
+				break;
+		}
+	}
+}
+
 
 void Program::handleScancodes()
 {
@@ -125,11 +170,11 @@ void Program::handleMouse()
 
 	SDL_GetMouseState(&x, &y);
 
-	if(mouseInsideWindow(x, y))
+	if(mouseInsideWindow)
 	{
-		Interface::drawSquare(renderer, x, y, brush.size);
+		Interface::drawSquare(renderer, x, y, brush.size, brush.color);
 	}
-	if(mouseInsideWindow(x, y) && mouseButtonHold)
+	if(mouseInsideWindow && mouseButtonHold)
 	{
 		brush.x = x;
 		brush.y = y;

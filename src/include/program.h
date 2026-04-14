@@ -2,6 +2,7 @@
 
 #include "interface.h"
 #include "brush.h"
+#include "colorPalette.h"
 
 #include <vector>
 
@@ -21,15 +22,16 @@ private:
 	SDL_Renderer* renderer;
 	// Brush parameters at particular moment
 	std::vector<Brush> trace;
-	
+
 	// Brush
 	void renderTrace();
 	void clearTrace();
 	void setDefaultBrush();
+	void setBrushColor(colorPalette color);
 
 	// Conditions
-	bool mouseInsideWindow(const float& x, const float& y);	
 	bool mouseButtonHold;
+	bool mouseInsideWindow;
 
 	// Inputs
 	void handleScancodes();

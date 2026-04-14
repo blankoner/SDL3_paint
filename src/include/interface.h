@@ -7,7 +7,7 @@ class Interface
 public:
 	Interface(){}
 	~Interface(){}
-	static void drawSquare(SDL_Renderer* renderer, float x, float y, float a);
+	static void drawSquare(SDL_Renderer* renderer, float x, float y, float size, SDL_Color color);
 	static void clearWindow(SDL_Renderer* renderer);
 
 private:
