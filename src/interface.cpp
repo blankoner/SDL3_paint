@@ -4,7 +4,6 @@ void Interface::clearWindow(SDL_Renderer* renderer)
 {
 	SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 	SDL_RenderClear(renderer);
-	drawPalettePane(renderer);
 }
 
 void Interface::drawSquare(SDL_Renderer* renderer, float x, float y, float size, SDL_Color color)
@@ -12,23 +11,4 @@ void Interface::drawSquare(SDL_Renderer* renderer, float x, float y, float size,
 	SDL_FRect square{x, y, size, size};
 	SDL_SetRenderDrawColor(renderer, color.r, color.g, color.b, color.a);
 	SDL_RenderFillRect(renderer, &square);
-}
-
-void Interface::drawPalettePane(SDL_Renderer* renderer)
-{
-	const int paintSize = 20;
-	const int paintsNum = 5;
-	const int margin = 3;
-	const SDL_Color colors[5] = {
-		{255, 0, 0, 255}, 
-		{0, 255, 0, 255}, 
-		{0, 0, 255, 255}, 
-		{255, 255, 255, 255}, 
-		{0, 0, 0, 255}
-	};
-
-	for(int i = 0; i < paintsNum; i++)
-	{
-		drawSquare(renderer, (i * (paintSize + margin)) + margin, margin, paintSize, colors[i]);
-	}
 }

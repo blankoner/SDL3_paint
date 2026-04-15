@@ -3,7 +3,9 @@
 #include "interface.h"
 #include "brush.h"
 #include "colorPalette.h"
+#include "paint.h"
 
+#include <array>
 #include <vector>
 
 class Program
@@ -14,28 +16,35 @@ public:
 	void run();
 
 private:
+	// Window
 	int width;
 	int height;
-	Brush brush;
 	bool quit;
 	SDL_Window* window;
 	SDL_Renderer* renderer;
-	// Brush parameters at particular moment
-	std::vector<Brush> trace;
+	static const int paintsNum = 5;
+	std::array<Paint, paintsNum> paints;
+
+	void renderPalette();
 
 	// Brush
+	Brush brush;
+	std::vector<Brush> trace;
+
 	void renderTrace();
 	void clearTrace();
 	void setDefaultBrush();
 	void setBrushColor(colorPalette color);
+	void colorPick();
 
 	// Conditions
 	bool mouseButtonHold;
 	bool mouseInsideWindow;
+	bool mouseOverPalette();
 
 	// Inputs
 	void handleScancodes();
 	void handleEvents();
-	void handleInput();
 	void handleMouse();
+	void handleInput();
 };
